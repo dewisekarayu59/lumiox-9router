@@ -330,11 +330,18 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
       tokenInput: null, tokenOutput: null, createdAt: new Date().toISOString(),
     })
 
+    // Build messages payload: exclude system messages and the newly added temp assistant message
+    const allMessages = [
+      ...session.messages
+        .filter(m => m.role !== 'system' && m.id !== tempId)
+        .map(m => ({ role: m.role, content: m.content })),
+      { role: 'user', content: dbContent }
+    ]
+
     // Stream response
     try {
       abortRef.current = new AbortController()
-      const allMessages = [...session.messages.filter(m => m.role !== 'system').map(m => ({ role: m.role, content: m.content })), { role: 'user', content: dbContent }]
-
+      
       const response = await fetch('/api/chat/stream', {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

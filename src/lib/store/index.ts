@@ -159,13 +159,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
         sessions: state.sessions.map(s => {
           if (s.id !== sessionId) return s
           
-          // If cursor is provided, prepend messages. Else, replace all (initial load).
+          // Merge initial messages with any existing local messages to prevent wiping out 
+          // temp messages or newly sent messages during a race condition.
           const existingMessages = s.messages || []
           const newMessages = cursor 
             ? [...messages, ...existingMessages]
-            : messages
+            : [...existingMessages, ...messages] // combine both for initial load too
             
-          // Deduplicate just in case
+          // Deduplicate keeping the local version (from existingMessages) if it exists,
+          // because local versions might have streaming content or be temp messages.
           const uniqueIds = new Set()
           const uniqueMessages = newMessages.filter((m: DBMessage) => {
             if (uniqueIds.has(m.id)) return false
@@ -173,6 +175,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
             return true
           })
             
+          // Sort messages by createdAt to ensure correct order after merging
+          uniqueMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+
           return { ...s, messages: uniqueMessages }
         })
       }))
