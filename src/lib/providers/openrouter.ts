@@ -2,9 +2,8 @@ import type { ChatMessage, AIModel } from '@/lib/types'
 import { BaseAIProvider, type ProviderResponse, type StreamCallback, type ChatOptions } from './base'
 
 const OPENROUTER_MODELS: AIModel[] = [
-  { id: 'meta-llama/llama-3-8b-instruct:free', name: 'Llama 3 8B (Free)', provider: 'openrouter', maxTokens: 8192, contextWindow: 8192, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
-  { id: 'google/gemini-pro:free', name: 'Gemini Pro (Free)', provider: 'openrouter', maxTokens: 8192, contextWindow: 32768, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
-  { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral 7B (Free)', provider: 'openrouter', maxTokens: 8192, contextWindow: 32768, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
+  { id: 'google/gemma-4-31b-it:free', name: 'Gemma 4 31B (Free)', provider: 'openrouter', maxTokens: 8192, contextWindow: 8192, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
+  { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', name: 'Nemotron 3 Ultra (Free)', provider: 'openrouter', maxTokens: 8192, contextWindow: 8192, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
 ]
 
 export class OpenRouterProvider extends BaseAIProvider {

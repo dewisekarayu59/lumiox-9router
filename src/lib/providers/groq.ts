@@ -3,8 +3,8 @@ import { BaseAIProvider, type ProviderResponse, type StreamCallback, type ChatOp
 
 const GROQ_MODELS: AIModel[] = [
   { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B', provider: 'groq', maxTokens: 8192, contextWindow: 128000, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
-  { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B', provider: 'groq', maxTokens: 8192, contextWindow: 32768, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
-  { id: 'gemma2-9b-it', name: 'Gemma 2 9B', provider: 'groq', maxTokens: 8192, contextWindow: 8192, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
+  { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B', provider: 'groq', maxTokens: 8192, contextWindow: 128000, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
+  { id: 'qwen/qwen3.6-27b', name: 'Qwen 3.6 27B', provider: 'groq', maxTokens: 8192, contextWindow: 32768, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
 ]
 
 export class GroqProvider extends BaseAIProvider {
