@@ -159,7 +159,7 @@ export function Header() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.98 }}
                 transition={{ duration: 0.12 }}
-                className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-[440px] max-w-[440px] bg-surface glass rounded-2xl shadow-soft-lg z-50 overflow-hidden">
+                className="fixed left-4 right-4 top-[60px] sm:absolute sm:top-full sm:right-0 sm:left-auto sm:mt-2 w-auto sm:w-[440px] max-w-[440px] bg-surface glass rounded-2xl shadow-soft-lg z-50 overflow-hidden">
                 {/* Provider Tabs */}
                 <div className="flex overflow-x-auto gap-0.5 p-2 border-b border-border scrollbar-none">
                   {allProviders.map(([key, info]) => (
