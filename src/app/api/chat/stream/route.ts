@@ -218,8 +218,10 @@ async function chatWithProvider(
   // Sanitize Gemini model IDs for OpenAI compatibility layer and upgrade deprecated models
   let safeModel = model
   if (provider === 'gemini') {
-    if (safeModel.includes('gemini-1.5-pro')) safeModel = 'gemini-2.5-pro'
-    if (safeModel.includes('gemini-1.5-flash')) safeModel = 'gemini-2.5-flash'
+    if (safeModel.includes('gemini-1.5-pro')) safeModel = 'gemini-2.0-flash'
+    if (safeModel.includes('gemini-1.5-flash')) safeModel = 'gemini-2.0-flash-lite'
+    if (safeModel.includes('gemini-2.5-pro')) safeModel = 'gemini-2.0-flash'
+    if (safeModel.includes('gemini-2.5-flash')) safeModel = 'gemini-2.0-flash'
   }
 
   const payload = {
