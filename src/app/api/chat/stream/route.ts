@@ -320,9 +320,8 @@ export async function POST(request: Request) {
   try {
     const { model, messages, stream, options, provider } = await request.json()
 
-    const city = request.headers.get('x-vercel-ip-city')
-    const region = request.headers.get('x-vercel-ip-country-region')
-    const locationContext = city ? `\n\nSystem Info: The user's location is ${city}, ${region || ''}. ONLY use this information if the user asks about local weather, time, or mentions "di sini" / "here". DO NOT mention ${city} in poems, stories, or general conversation unless requested.` : ''
+    const city = null
+    const locationContext = ''
 
     const finalSystemPrompt = options?.systemPrompt || DEFAULT_SYSTEM_PROMPT
     const truncatedMessages = truncateMessages(messages)
