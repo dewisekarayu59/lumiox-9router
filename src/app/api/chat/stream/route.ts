@@ -209,7 +209,7 @@ async function chatWithProvider(
 
   // Cap max_tokens to prevent 400 bad request errors on models with lower completion limits
   let maxCompletionTokens = options.maxTokens || 4096
-  if (model === 'llama-3.3-70b-versatile' || model.includes('llama')) {
+  if (model === 'llama-3.3-70b-versatile' || model.includes('llama') || model.includes('qwen')) {
     if (maxCompletionTokens > 4096) maxCompletionTokens = 4096
   } else if (maxCompletionTokens > 8192) {
     maxCompletionTokens = 8192
