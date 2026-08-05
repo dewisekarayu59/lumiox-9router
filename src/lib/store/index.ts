@@ -232,7 +232,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         loadedModel = 'llama-3.3-70b-versatile'
       }
       set({
-        defaultProvider: data.defaultProvider || 'groq',
+        defaultProvider: data.defaultProvider === 'groq' ? 'groq' : 'groq',
         defaultModel: loadedModel,
         theme: data.theme || 'light',
         temperature: data.temperature ?? 0.7,

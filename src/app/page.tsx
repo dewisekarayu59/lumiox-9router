@@ -23,7 +23,7 @@ export default function LandingPage() {
   }, [router])
 
   const features = [
-    { icon: Brain, title: 'Multi-Provider AI', desc: 'Access Gemini, Groq, and OpenRouter from one unified interface.' },
+    { icon: Brain, title: 'Ultra-Fast AI', desc: 'Access Groq powered by Llama 3 models from one unified interface.' },
     { icon: Zap, title: 'Real-Time Streaming', desc: 'Watch AI responses appear in real-time with smooth, efficient streaming.' },
     { icon: Shield, title: 'Secure & Private', desc: 'Your API keys stay server-side. Never exposed to the frontend.' },
     { icon: Bot, title: 'Smart Formatting', desc: 'Beautiful markdown, syntax highlighting, and rich code blocks.' },
@@ -152,9 +152,7 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
-              { name: 'Gemini', color: '#4285F4', desc: 'Google AI models' },
-              { name: 'Groq', color: '#F55036', desc: 'Fast LPU inference' },
-              { name: 'OpenRouter', color: '#6366F1', desc: 'Unified API' },
+              { name: 'Groq', color: '#F55036', desc: 'Ultra-fast inference' },
             ].map((p, i) => (
               <div key={i}
                 className="group relative p-5 bg-surface border border-border rounded-2xl hover:shadow-soft-lg transition-all duration-200 text-center">

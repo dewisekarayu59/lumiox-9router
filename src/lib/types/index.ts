@@ -1,4 +1,4 @@
-export type AIProvider = 'gemini' | 'groq' | 'openrouter'
+export type AIProvider = 'groq'
 
 export interface AIModel {
   id: string

@@ -73,30 +73,12 @@ export interface ProviderInfo {
 }
 
 export const PROVIDER_INFO: Record<string, ProviderInfo> = {
-  gemini: {
-    id: 'gemini',
-    name: 'Gemini',
-    description: 'Google\'s Gemini - Multimodal AI',
-    icon: 'sparkles',
-    color: '#4285F4',
-    enabled: true,
-    requiresApiKey: true,
-  },
   groq: {
     id: 'groq',
     name: 'Groq',
     description: 'Ultra-fast inference with Groq',
     icon: 'zap',
     color: '#F55036',
-    enabled: true,
-    requiresApiKey: true,
-  },
-  openrouter: {
-    id: 'openrouter',
-    name: 'OpenRouter',
-    description: 'Access multiple models via OpenRouter',
-    icon: 'network',
-    color: '#6366F1',
     enabled: true,
     requiresApiKey: true,
   },

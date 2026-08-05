@@ -159,12 +159,6 @@ async function chatWithProvider(
   if (provider === 'groq') {
     baseURL = 'https://api.groq.com/openai/v1'
     apiKey = process.env.GROQ_API_KEY?.trim() || ''
-  } else if (provider === 'gemini') {
-    baseURL = 'https://generativelanguage.googleapis.com/v1beta/openai/'
-    apiKey = process.env.GEMINI_API_KEY?.trim() || ''
-  } else if (provider === 'openrouter') {
-    baseURL = 'https://openrouter.ai/api/v1'
-    apiKey = process.env.OPENROUTER_API_KEY?.trim() || ''
   } else {
     throw new Error(`Provider ${provider} is not supported directly.`)
   }
@@ -215,14 +209,7 @@ async function chatWithProvider(
     maxCompletionTokens = 8192
   }
 
-  // Sanitize Gemini model IDs for OpenAI compatibility layer and upgrade deprecated models
   let safeModel = model
-  if (provider === 'gemini') {
-    if (safeModel.includes('gemini-1.5-pro')) safeModel = 'gemini-2.0-flash'
-    if (safeModel.includes('gemini-1.5-flash')) safeModel = 'gemini-2.0-flash-lite'
-    if (safeModel.includes('gemini-2.5-pro')) safeModel = 'gemini-2.0-flash'
-    if (safeModel.includes('gemini-2.5-flash')) safeModel = 'gemini-2.0-flash'
-  }
 
   const payload = {
     model: safeModel,
