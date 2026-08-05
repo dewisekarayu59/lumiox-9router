@@ -1,12 +1,8 @@
 import type { AIProvider, AIModel } from '@/lib/types'
 import { BaseAIProvider, type ProviderInfo, PROVIDER_INFO } from './base'
-import { ClaudeProvider } from './claude'
 import { GeminiProvider } from './gemini'
 import { GroqProvider } from './groq'
 import { OpenRouterProvider } from './openrouter'
-import { CerebrasProvider } from './cerebras'
-import { MistralProvider } from './mistral'
-import { DeepSeekProvider } from './deepseek'
 
 class ProviderRegistry {
   private providers: Map<AIProvider, BaseAIProvider> = new Map()
@@ -42,13 +38,9 @@ class ProviderRegistry {
 
 export const providerRegistry = new ProviderRegistry()
 
-providerRegistry.register(new ClaudeProvider(''))
 providerRegistry.register(new GeminiProvider(''))
 providerRegistry.register(new GroqProvider(''))
 providerRegistry.register(new OpenRouterProvider(''))
-providerRegistry.register(new CerebrasProvider(''))
-providerRegistry.register(new MistralProvider(''))
-providerRegistry.register(new DeepSeekProvider(''))
 
 export function getProvider(id: AIProvider): BaseAIProvider | undefined {
   return providerRegistry.get(id)

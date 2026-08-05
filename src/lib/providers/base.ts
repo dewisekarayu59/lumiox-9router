@@ -72,16 +72,7 @@ export interface ProviderInfo {
   requiresApiKey: boolean
 }
 
-export const PROVIDER_INFO: Record<AIProvider, ProviderInfo> = {
-  claude: {
-    id: 'claude',
-    name: 'Claude',
-    description: 'Anthropic\'s Claude - Advanced reasoning and analysis',
-    icon: 'brain',
-    color: '#D4756B',
-    enabled: true,
-    requiresApiKey: true,
-  },
+export const PROVIDER_INFO: Record<string, ProviderInfo> = {
   gemini: {
     id: 'gemini',
     name: 'Gemini',
@@ -106,33 +97,6 @@ export const PROVIDER_INFO: Record<AIProvider, ProviderInfo> = {
     description: 'Access multiple models via OpenRouter',
     icon: 'network',
     color: '#6366F1',
-    enabled: true,
-    requiresApiKey: true,
-  },
-  cerebras: {
-    id: 'cerebras',
-    name: 'Cerebras',
-    description: 'Cerebras inference engine',
-    icon: 'cpu',
-    color: '#FF6B35',
-    enabled: true,
-    requiresApiKey: true,
-  },
-  mistral: {
-    id: 'mistral',
-    name: 'Mistral',
-    description: 'Mistral AI models',
-    icon: 'wind',
-    color: '#FF7000',
-    enabled: true,
-    requiresApiKey: true,
-  },
-  deepseek: {
-    id: 'deepseek',
-    name: 'DeepSeek',
-    description: 'DeepSeek reasoning models',
-    icon: 'search',
-    color: '#4D6BFE',
     enabled: true,
     requiresApiKey: true,
   },

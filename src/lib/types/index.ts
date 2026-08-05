@@ -1,4 +1,4 @@
-export type AIProvider = 'claude' | 'gemini' | 'groq' | 'openrouter' | 'cerebras' | 'mistral' | 'deepseek'
+export type AIProvider = 'gemini' | 'groq' | 'openrouter'
 
 export interface AIModel {
   id: string

@@ -336,6 +336,7 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
         signal: abortRef.current.signal,
         body: JSON.stringify({
           model: session.model,
+          provider: session.provider,
           messages: allMessages,
           stream: true,
           options: { temperature: settings.temperature, topP: settings.topP, maxTokens: settings.maxTokens, systemPrompt: settings.systemPrompt || undefined },

@@ -23,7 +23,7 @@ export default function LandingPage() {
   }, [router])
 
   const features = [
-    { icon: Brain, title: 'Multi-Provider AI', desc: 'Access Claude, Gemini, Groq, and more from one unified interface.' },
+    { icon: Brain, title: 'Multi-Provider AI', desc: 'Access Gemini, Groq, and OpenRouter from one unified interface.' },
     { icon: Zap, title: 'Real-Time Streaming', desc: 'Watch AI responses appear in real-time with smooth, efficient streaming.' },
     { icon: Shield, title: 'Secure & Private', desc: 'Your API keys stay server-side. Never exposed to the frontend.' },
     { icon: Bot, title: 'Smart Formatting', desc: 'Beautiful markdown, syntax highlighting, and rich code blocks.' },
@@ -152,13 +152,9 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
-              { name: 'Claude', color: '#D4756B', desc: 'Advanced reasoning & analysis' },
-              { name: 'Gemini', color: '#4285F4', desc: 'Multimodal AI by Google' },
-              { name: 'Groq', color: '#F55036', desc: 'Ultra-fast inference' },
-              { name: 'OpenRouter', color: '#6366F1', desc: 'Multi-model gateway' },
-              { name: 'Cerebras', color: '#FF6B35', desc: 'Fast inference engine' },
-              { name: 'Mistral', color: '#FF7000', desc: 'Efficient AI models' },
-              { name: 'DeepSeek', color: '#4D6BFE', desc: 'Powerful reasoning' },
+              { name: 'Gemini', color: '#4285F4', desc: 'Google AI models' },
+              { name: 'Groq', color: '#F55036', desc: 'Fast LPU inference' },
+              { name: 'OpenRouter', color: '#6366F1', desc: 'Unified API' },
             ].map((p, i) => (
               <div key={i}
                 className="group relative p-5 bg-surface border border-border rounded-2xl hover:shadow-soft-lg transition-all duration-200 text-center">
