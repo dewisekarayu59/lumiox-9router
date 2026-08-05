@@ -60,7 +60,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Register error:', error)
     return NextResponse.json(
-      { message: 'Terjadi kesalahan server' },
+      { message: `Terjadi kesalahan saat mendaftar: ${error.message || String(error)}` },
       { status: 500 }
     )
   }
