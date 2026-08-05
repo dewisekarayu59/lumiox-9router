@@ -173,7 +173,7 @@ async function chatWithProvider(
     throw { type: 'missing_api_key', message: `API Key for ${provider} is missing. Please set it in your environment variables.` }
   }
 
-  const imageGenInstructions = "\n\nImage Generation Capabilities: You can generate images when asked. If the user asks you to generate, create, draw, or visualize an image, you must output a markdown image tag inline. Format: `![Description](https://image.pollinations.ai/prompt/encoded_prompt?width=1024&height=1024&nologo=true)`. Replace `encoded_prompt` with a detailed, creative English prompt describing the image (URL-encoded, e.g. space becomes %20). Do not write raw HTML, only use standard markdown image tag. You can write a short explanation of the image in Indonesian before or after the image tag, but keep the prompt inside the URL in English for better results."
+  const imageGenInstructions = "\n\nImage Generation Capabilities: ONLY generate an image if the user EXPLICITLY asks for a photo, image, picture, or visualization. DO NOT generate images for poems, stories, or general chat unless specifically requested. Format when requested: `![Description](https://image.pollinations.ai/prompt/encoded_prompt?width=1024&height=1024&nologo=true&model=flux)`. The prompt must be in English and URL-encoded."
   
   let searchContext = ''
   const latestMessage = messages[messages.length - 1]?.content || ''
@@ -333,7 +333,7 @@ export async function POST(request: Request) {
 
     const city = request.headers.get('x-vercel-ip-city')
     const region = request.headers.get('x-vercel-ip-country-region')
-    const locationContext = city ? `User Location Context: The user is currently located in ${city}, ${region || ''}. Use this to answer queries about "here" (disini).` : ''
+    const locationContext = city ? `\n\nSystem Info: The user's location is ${city}, ${region || ''}. ONLY use this information if the user asks about local weather, time, or mentions "di sini" / "here". DO NOT mention ${city} in poems, stories, or general conversation unless requested.` : ''
 
     const finalSystemPrompt = options?.systemPrompt || DEFAULT_SYSTEM_PROMPT
     const truncatedMessages = truncateMessages(messages)
