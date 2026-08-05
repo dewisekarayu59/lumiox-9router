@@ -292,11 +292,16 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
 
     // Save user message
     try {
-      const userMsg = await fetch(`/api/sessions/${sessionId}/messages`, {
+      const response = await fetch(`/api/sessions/${sessionId}/messages`, {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: 'user', content: dbContent, provider: session.provider, model: session.model }),
-      }).then(r => r.json())
+      })
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}))
+        throw new Error(errData.message || 'Gagal menyimpan pesan ke database')
+      }
+      const userMsg = await response.json()
 
       addMessage(sessionId, userMsg)
 

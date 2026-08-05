@@ -215,8 +215,15 @@ async function chatWithProvider(
     maxCompletionTokens = 8192
   }
 
+  // Sanitize Gemini model IDs for OpenAI compatibility layer
+  let safeModel = model
+  if (provider === 'gemini') {
+    if (safeModel === 'gemini-1.5-pro-latest') safeModel = 'gemini-1.5-pro'
+    if (safeModel === 'gemini-1.5-flash-latest') safeModel = 'gemini-1.5-flash'
+  }
+
   const payload = {
-    model: model,
+    model: safeModel,
     messages: formattedMessages,
     temperature: options.temperature ?? 0.7,
     max_tokens: maxCompletionTokens,
@@ -238,7 +245,7 @@ async function chatWithProvider(
     throw new Error(`${provider} Error (${response.status}): ${errBody}`)
   }
 
-  if (stream) return { streamBody: response.body, model: model || 'llama-3.3-70b-versatile' }
+  if (stream) return { streamBody: response.body, model: safeModel || 'llama-3.3-70b-versatile' }
 
   const rawData = await response.json()
   const data = rawData.data && Array.isArray(rawData.data.choices) ? rawData.data : rawData
@@ -253,7 +260,7 @@ async function chatWithProvider(
       totalTokens: usage?.total_tokens || 0,
     },
     provider: provider,
-    model: model,
+    model: safeModel,
     finishReason: choice.finish_reason || 'stop',
   }
 }
