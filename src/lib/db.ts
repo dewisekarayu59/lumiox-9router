@@ -11,15 +11,27 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 export const prisma = (() => {
-  if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
-    // On Vercel (production), use the Neon serverless WebSocket pooler
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-    const adapter = new PrismaNeon(pool)
-    return new PrismaClient({ adapter })
-  } else {
-    // Use standard Prisma Client locally or if DATABASE_URL is not configured
+  let url = process.env.DATABASE_URL || ''
+  
+  // Clean up accidental quotes from copy-pasting into Vercel
+  url = url.replace(/^"|'/, '').replace(/"|'$/, '')
+
+  if (process.env.NODE_ENV === 'production' && url) {
+    // On Vercel, use standard Prisma Client but ensure pgbouncer is enabled for pooled connections
+    if (url.includes('pooler') && !url.includes('pgbouncer=true')) {
+      url += (url.includes('?') ? '&' : '?') + 'pgbouncer=true'
+    }
+    
+    // We avoid PrismaNeon here because standard Prisma with pgbouncer is often more stable 
+    // against connection parsing quirks in Vercel Node.js Serverless.
     if (!globalForPrisma.prisma) {
-      globalForPrisma.prisma = new PrismaClient()
+      globalForPrisma.prisma = new PrismaClient({ datasources: { db: { url } } })
+    }
+    return globalForPrisma.prisma
+  } else {
+    // Local
+    if (!globalForPrisma.prisma) {
+      globalForPrisma.prisma = new PrismaClient({ datasources: { db: { url } } })
     }
     return globalForPrisma.prisma
   }
