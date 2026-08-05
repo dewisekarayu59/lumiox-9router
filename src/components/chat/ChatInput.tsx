@@ -295,7 +295,7 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
       const userMsg = await fetch(`/api/sessions/${sessionId}/messages`, {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: 'user', content: dbContent }),
+        body: JSON.stringify({ role: 'user', content: dbContent, provider: session.provider, model: session.model }),
       }).then(r => r.json())
 
       addMessage(sessionId, userMsg)

@@ -209,7 +209,7 @@ async function chatWithProvider(
 
   // Cap max_tokens to prevent 400 bad request errors on models with lower completion limits
   let maxCompletionTokens = options.maxTokens || 4096
-  if (model === 'dewis' || model.includes('llama')) {
+  if (model === 'llama-3.3-70b-versatile' || model.includes('llama')) {
     if (maxCompletionTokens > 4096) maxCompletionTokens = 4096
   } else if (maxCompletionTokens > 8192) {
     maxCompletionTokens = 8192
@@ -238,7 +238,7 @@ async function chatWithProvider(
     throw new Error(`${provider} Error (${response.status}): ${errBody}`)
   }
 
-  if (stream) return { streamBody: response.body, model: model || 'dewis' }
+  if (stream) return { streamBody: response.body, model: model || 'llama-3.3-70b-versatile' }
 
   const rawData = await response.json()
   const data = rawData.data && Array.isArray(rawData.data.choices) ? rawData.data : rawData

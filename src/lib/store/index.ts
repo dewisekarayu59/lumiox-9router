@@ -211,7 +211,7 @@ interface SettingsState {
 
 export const useSettingsStore = create<SettingsState>((set) => ({
   defaultProvider: 'groq',
-  defaultModel: 'dewis',
+  defaultModel: 'llama-3.3-70b-versatile',
   theme: 'light',
   temperature: 0.7,
   maxTokens: 4096,
@@ -222,9 +222,13 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   loadSettings: async () => {
     try {
       const data = await apiGet('/api/user/settings')
+      let loadedModel = data.defaultModel || 'llama-3.3-70b-versatile'
+      if (loadedModel === 'dewis' || loadedModel.includes('kc/')) {
+        loadedModel = 'llama-3.3-70b-versatile'
+      }
       set({
         defaultProvider: data.defaultProvider || 'groq',
-        defaultModel: data.defaultModel || 'dewis',
+        defaultModel: loadedModel,
         theme: data.theme || 'light',
         temperature: data.temperature ?? 0.7,
         maxTokens: data.maxTokens || 4096,
