@@ -25,9 +25,36 @@ export function ChatArea() {
     }
   }, [activeSessionId, session])
 
+  const prevMessagesLengthRef = useRef(session?.messages.length || 0)
+  const lastMessageContentRef = useRef(session?.messages[session.messages.length - 1]?.content || '')
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [session?.messages.length])
+    const currentLength = session?.messages.length || 0
+    if (currentLength > prevMessagesLengthRef.current) {
+      // Only scroll to bottom if we are not loading older messages 
+      if (!isLoadingMore) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+    prevMessagesLengthRef.current = currentLength
+  }, [session?.messages.length, isLoadingMore])
+
+  // Auto-scroll when the last message is streaming (content changes)
+  useEffect(() => {
+    const currentLastContent = session?.messages[session.messages.length - 1]?.content || ''
+    if (currentLastContent !== lastMessageContentRef.current) {
+      lastMessageContentRef.current = currentLastContent
+      
+      // Check if user is near the bottom (within 150px)
+      if (scrollRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollRef.current
+        const isNearBottom = scrollHeight - scrollTop - clientHeight < 150
+        if (isNearBottom) {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }) // Use auto for streaming to prevent jitter
+        }
+      }
+    }
+  }, [session?.messages])
 
   const handleScroll = useCallback(async () => {
     if (!scrollRef.current || !session || isLoadingMore) return
