@@ -17,15 +17,12 @@ export const prisma = (() => {
   url = url.replace(/^"|'/, '').replace(/"|'$/, '')
 
   if (process.env.NODE_ENV === 'production' && url) {
-    // On Vercel, use standard Prisma Client but ensure pgbouncer is enabled for pooled connections
-    if (url.includes('pooler') && !url.includes('pgbouncer=true')) {
-      url += (url.includes('?') ? '&' : '?') + 'pgbouncer=true'
-    }
-    
-    // We avoid PrismaNeon here because standard Prisma with pgbouncer is often more stable 
-    // against connection parsing quirks in Vercel Node.js Serverless.
+    // On Vercel, use the Neon serverless WebSocket pooler
+    // This avoids TCP connection timeouts to port 5432 which can happen on Vercel Node.js functions
     if (!globalForPrisma.prisma) {
-      globalForPrisma.prisma = new PrismaClient({ datasources: { db: { url } } })
+      const pool = new Pool({ connectionString: url })
+      const adapter = new PrismaNeon(pool)
+      globalForPrisma.prisma = new PrismaClient({ adapter })
     }
     return globalForPrisma.prisma
   } else {
