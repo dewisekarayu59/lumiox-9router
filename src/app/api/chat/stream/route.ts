@@ -19,22 +19,7 @@ function truncateMessages(messages: ChatMessage[], max: number = 30): ChatMessag
   return [messages[0], ...messages.slice(-(max - 1))]
 }
 
-function mapModel(model: string): string {
-  const mapping: Record<string, string> = {
-    'kc/openai/gpt-4.1': 'ag/gpt-oss-120b-medium',
-    'kc/openai/o3': 'ag/claude-opus-4-6-thinking',
-    'kc/deepseek/deepseek-chat': 'dewis',
-    'kc/deepseek/deepseek-reasoner': 'ag/gemini-3-flash-agent',
-    'kc/anthropic/claude-sonnet-4-20250514': 'ag/claude-sonnet-4-6',
-    'cl/anthropic/claude-sonnet-4.6': 'ag/claude-sonnet-4-6',
-    'kc/anthropic/claude-opus-4-20250514': 'ag/claude-opus-4-6-thinking',
-    'kc/google/gemini-2.5-pro': 'ag/gemini-3.1-pro-low',
-    'kc/google/gemini-2.5-flash': 'ag/gemini-3.5-flash-low',
-    'llama-3.3-70b-versatile': 'dewis',
-    'llama 3.3 70b versatile': 'dewis',
-  }
-  return mapping[model] || model
-}
+// No mapping needed for direct providers
 
 function parseMultimodalContent(content: string): any {
   if (typeof content !== 'string') return content
@@ -159,16 +144,34 @@ async function searchWeb(query: string): Promise<string> {
   return ''
 }
 
-async function chatWith9Router(
+async function chatWithProvider(
   messages: ChatMessage[],
   model: string,
   options: ChatOptions,
   stream: boolean,
   locationContext: string,
-  city: string | null
+  city: string | null,
+  provider: string
 ) {
-  const baseURL = process.env.OPENAI_BASE_URL || 'http://' + '127.0.0.1' + ':20128/v1'
-  const apiKey = process.env.OPENAI_API_KEY?.trim()
+  let baseURL = ''
+  let apiKey = ''
+
+  if (provider === 'groq') {
+    baseURL = 'https://api.groq.com/openai/v1'
+    apiKey = process.env.GROQ_API_KEY?.trim() || ''
+  } else if (provider === 'gemini') {
+    baseURL = 'https://generativelanguage.googleapis.com/v1beta/openai/'
+    apiKey = process.env.GEMINI_API_KEY?.trim() || ''
+  } else if (provider === 'openrouter') {
+    baseURL = 'https://openrouter.ai/api/v1'
+    apiKey = process.env.OPENROUTER_API_KEY?.trim() || ''
+  } else {
+    throw new Error(`Provider ${provider} is not supported directly.`)
+  }
+
+  if (!apiKey) {
+    throw { type: 'missing_api_key', message: `API Key for ${provider} is missing. Please set it in your environment variables.` }
+  }
 
   const imageGenInstructions = "\n\nImage Generation Capabilities: You can generate images when asked. If the user asks you to generate, create, draw, or visualize an image, you must output a markdown image tag inline. Format: `![Description](https://image.pollinations.ai/prompt/encoded_prompt?width=1024&height=1024&nologo=true)`. Replace `encoded_prompt` with a detailed, creative English prompt describing the image (URL-encoded, e.g. space becomes %20). Do not write raw HTML, only use standard markdown image tag. You can write a short explanation of the image in Indonesian before or after the image tag, but keep the prompt inside the URL in English for better results."
   
@@ -204,19 +207,16 @@ async function chatWith9Router(
     })),
   ]
 
-  const is9Router = baseURL.includes('127.0.0.1') || baseURL.includes('serveo') || baseURL.includes('9router')
-  const mappedModel = is9Router ? mapModel(model) : model
-
   // Cap max_tokens to prevent 400 bad request errors on models with lower completion limits
   let maxCompletionTokens = options.maxTokens || 4096
-  if (mappedModel === 'dewis' || mappedModel.includes('llama')) {
+  if (model === 'dewis' || model.includes('llama')) {
     if (maxCompletionTokens > 4096) maxCompletionTokens = 4096
   } else if (maxCompletionTokens > 8192) {
     maxCompletionTokens = 8192
   }
 
   const payload = {
-    model: mappedModel || 'dewis',
+    model: model,
     messages: formattedMessages,
     temperature: options.temperature ?? 0.7,
     max_tokens: maxCompletionTokens,
@@ -235,7 +235,7 @@ async function chatWith9Router(
 
   if (!response.ok) {
     const errBody = await response.text().catch(() => '')
-    throw new Error(`9Router Error (${response.status}): ${errBody}`)
+    throw new Error(`${provider} Error (${response.status}): ${errBody}`)
   }
 
   if (stream) return { streamBody: response.body, model: model || 'dewis' }
@@ -252,8 +252,8 @@ async function chatWith9Router(
       outputTokens: usage?.completion_tokens || 0,
       totalTokens: usage?.total_tokens || 0,
     },
-    provider: '9router',
-    model: model || 'dewis',
+    provider: provider,
+    model: model,
     finishReason: choice.finish_reason || 'stop',
   }
 }
@@ -322,7 +322,7 @@ async function* makeTransformedStream(rawStream: ReadableStream) {
 
 export async function POST(request: Request) {
   try {
-    const { model, messages, stream, options } = await request.json()
+    const { model, messages, stream, options, provider } = await request.json()
 
     const city = request.headers.get('x-vercel-ip-city')
     const region = request.headers.get('x-vercel-ip-country-region')
@@ -331,13 +331,14 @@ export async function POST(request: Request) {
     const finalSystemPrompt = options?.systemPrompt || DEFAULT_SYSTEM_PROMPT
     const truncatedMessages = truncateMessages(messages)
 
-    const result = await chatWith9Router(
+    const result = await chatWithProvider(
       truncatedMessages,
       model,
       { ...(options || {}), systemPrompt: finalSystemPrompt },
       stream,
       locationContext,
-      city
+      city,
+      provider || 'groq' // fallback to groq just in case
     )
 
     if (stream && result.streamBody) {

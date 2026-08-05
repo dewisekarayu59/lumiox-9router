@@ -2,12 +2,9 @@ import type { ChatMessage, AIModel } from '@/lib/types'
 import { BaseAIProvider, type ProviderResponse, type StreamCallback, type ChatOptions } from './base'
 
 const OPENROUTER_MODELS: AIModel[] = [
-  { id: 'dewis', name: 'Free (dewis)', provider: 'openrouter', maxTokens: 4096, contextWindow: 32768, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
-  { id: 'kc/anthropic/claude-sonnet-4-20250514', name: 'Claude Sonnet 4', provider: 'openrouter', maxTokens: 8192, contextWindow: 200000, inputPrice: 3, outputPrice: 15, supportsStreaming: true, supportsImages: true },
-  { id: 'kc/google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'openrouter', maxTokens: 8192, contextWindow: 1048576, inputPrice: 0.15, outputPrice: 0.6, supportsStreaming: true, supportsImages: true },
-  { id: 'kc/openai/gpt-4.1', name: 'GPT-4.1', provider: 'openrouter', maxTokens: 32768, contextWindow: 1000000, inputPrice: 2, outputPrice: 8, supportsStreaming: true, supportsImages: true },
-  { id: 'kc/deepseek/deepseek-chat', name: 'DeepSeek Chat', provider: 'openrouter', maxTokens: 8192, contextWindow: 128000, inputPrice: 0.14, outputPrice: 0.28, supportsStreaming: true, supportsImages: false },
-  { id: 'kc/openai/o3', name: 'o3', provider: 'openrouter', maxTokens: 100000, contextWindow: 200000, inputPrice: 10, outputPrice: 40, supportsStreaming: true, supportsImages: true },
+  { id: 'meta-llama/llama-3-8b-instruct:free', name: 'Llama 3 8B (Free)', provider: 'openrouter', maxTokens: 8192, contextWindow: 8192, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
+  { id: 'google/gemini-pro:free', name: 'Gemini Pro (Free)', provider: 'openrouter', maxTokens: 8192, contextWindow: 32768, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
+  { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral 7B (Free)', provider: 'openrouter', maxTokens: 8192, contextWindow: 32768, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
 ]
 
 export class OpenRouterProvider extends BaseAIProvider {

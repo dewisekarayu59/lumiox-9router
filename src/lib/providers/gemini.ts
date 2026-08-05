@@ -2,10 +2,8 @@ import type { ChatMessage, AIModel } from '@/lib/types'
 import { BaseAIProvider, type ProviderResponse, type StreamCallback, type ChatOptions } from './base'
 
 const GEMINI_MODELS: AIModel[] = [
-  { id: 'dewis', name: 'Free (dewis)', provider: 'gemini', maxTokens: 4096, contextWindow: 32768, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: false },
-  { id: 'kc/google/gemini-2.5-pro', name: 'Gemini 2.5 Pro', provider: 'gemini', maxTokens: 8192, contextWindow: 1048576, inputPrice: 1.25, outputPrice: 10, supportsStreaming: true, supportsImages: true },
-  { id: 'kc/google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'gemini', maxTokens: 8192, contextWindow: 1048576, inputPrice: 0.15, outputPrice: 0.6, supportsStreaming: true, supportsImages: true },
-  { id: 'ag/gemini-3.5-flash-low', name: 'Gemini 3.5 Flash', provider: 'gemini', maxTokens: 8192, contextWindow: 1048576, inputPrice: 0.15, outputPrice: 0.6, supportsStreaming: true, supportsImages: true },
+  { id: 'gemini-1.5-pro-latest', name: 'Gemini 1.5 Pro', provider: 'gemini', maxTokens: 8192, contextWindow: 2000000, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: true },
+  { id: 'gemini-1.5-flash-latest', name: 'Gemini 1.5 Flash', provider: 'gemini', maxTokens: 8192, contextWindow: 1000000, inputPrice: 0, outputPrice: 0, supportsStreaming: true, supportsImages: true },
 ]
 
 export class GeminiProvider extends BaseAIProvider {
