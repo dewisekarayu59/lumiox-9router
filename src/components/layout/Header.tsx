@@ -4,7 +4,7 @@ import { useChatStore, useSettingsStore, useUIStore } from '@/lib/store'
 import { useTranslation } from '@/lib/store/language'
 import { PROVIDER_INFO, getModelsForProvider } from '@/lib/providers'
 import type { AIModel } from '@/lib/types'
-import { Menu, Moon, Sun, ChevronDown, RefreshCw, AlertCircle, User, Settings, LogOut, Sparkles, Download } from 'lucide-react'
+import { Menu, Moon, Sun, ChevronDown, RefreshCw, AlertCircle, User, Settings, LogOut, Sparkles, Download, Share2 } from 'lucide-react'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
@@ -45,6 +45,22 @@ export function Header() {
     URL.revokeObjectURL(url)
     const { notifySuccess } = require('@/components/notification/Toast')
     notifySuccess(t('chatExported') || 'Chat exported successfully')
+  }
+
+  const handleShareSession = async () => {
+    if (!session) return
+    try {
+      const res = await fetch(`/api/sessions/${session.id}/share`, { method: 'POST', credentials: 'include' })
+      const data = await res.json()
+      if (data.shareId) {
+        const shareUrl = `${window.location.origin}/share/${data.shareId}`
+        await navigator.clipboard.writeText(shareUrl)
+        const { notifySuccess } = await import('@/components/notification/Toast')
+        notifySuccess('Public link copied to clipboard!')
+      }
+    } catch (e) {
+      console.error('Failed to share session:', e)
+    }
   }
 
   const [userName, setUserName] = useState('')
@@ -220,11 +236,18 @@ export function Header() {
         </div>
 
         {session && session.messages.length > 0 && (
-          <button onClick={handleExportChat}
-            className="p-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] rounded-xl transition-colors text-text-secondary hover:text-text-primary"
-            title="Export to Markdown">
-            <Download className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button onClick={handleShareSession}
+              className="p-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] rounded-xl transition-colors text-text-secondary hover:text-text-primary"
+              title="Get Public Link">
+              <Share2 className="w-4 h-4" />
+            </button>
+            <button onClick={handleExportChat}
+              className="p-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] rounded-xl transition-colors text-text-secondary hover:text-text-primary"
+              title="Export to Markdown">
+              <Download className="w-4 h-4" />
+            </button>
+          </div>
         )}
 
         {/* Theme Toggle */}
