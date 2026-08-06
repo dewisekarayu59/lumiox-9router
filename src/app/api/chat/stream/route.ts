@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { YoutubeTranscript } from 'youtube-transcript'
 
 const DEFAULT_SYSTEM_PROMPT = 'You are a helpful AI assistant. Be concise and accurate. Use Markdown when helpful.'
 
@@ -192,7 +193,26 @@ async function chatWithProvider(
     }
   }
 
-  const sys = (options.systemPrompt || DEFAULT_SYSTEM_PROMPT) + imageGenInstructions + (locationContext ? `\n\n${locationContext}` : '') + searchContext
+  let youtubeContext = ''
+  const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/g;
+  let ytMatch;
+  const ytUrls = [];
+  while ((ytMatch = ytRegex.exec(latestMessage)) !== null) {
+      ytUrls.push(ytMatch[0]);
+  }
+
+  if (ytUrls.length > 0) {
+      try {
+          const transcriptList = await YoutubeTranscript.fetchTranscript(ytUrls[0]);
+          const fullText = transcriptList.map(t => t.text).join(' ');
+          youtubeContext = `\n\nYouTube Video Transcript (from ${ytUrls[0]}):\n${fullText}\n\nPlease refer to this transcript to answer questions or summarize the video content.`;
+      } catch (err) {
+          console.error("Failed to fetch YT transcript", err);
+          youtubeContext = `\n\n[System Note: The user provided a YouTube link but the transcript could not be fetched. The video might not have closed captions/subtitles. Let the user know you cannot access the video content directly.]`;
+      }
+  }
+
+  const sys = (options.systemPrompt || DEFAULT_SYSTEM_PROMPT) + imageGenInstructions + (locationContext ? `\n\n${locationContext}` : '') + searchContext + youtubeContext
   const formattedMessages = [
     { role: 'system', content: sys },
     ...messages.filter(m => m.role !== 'system').map(m => ({
