@@ -4,6 +4,7 @@ import { MessageBubble } from '@/components/chat/MessageBubble'
 import { Bot } from 'lucide-react'
 import { verifyToken } from '@/lib/auth'
 import { cookies } from 'next/headers'
+import { GuestChatInterface } from '@/components/chat/GuestChatInterface'
 
 export default async function SharedChatPage({ params }: { params: { id: string } }) {
   const session = await prisma.chatSession.findUnique({
@@ -54,9 +55,9 @@ export default async function SharedChatPage({ params }: { params: { id: string 
               This is your shared chat. <a href={`/chat?id=${session.id}`} className="text-accent-500 hover:underline font-medium">Return to chat</a>.
             </p>
           ) : (
-            <p className="text-text-secondary text-sm">
-              Want to start your own AI conversation? <a href="/" className="text-accent-500 hover:underline font-medium">Try Lumiox for free</a>.
-            </p>
+            <div className="text-left">
+              <GuestChatInterface shareId={params.id} />
+            </div>
           )}
         </div>
       </div>

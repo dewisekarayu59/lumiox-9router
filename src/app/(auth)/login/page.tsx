@@ -48,7 +48,13 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(data.user))
       localStorage.setItem('token', data.token)
       notifySuccess('Welcome back!')
-      router.push('/chat')
+      
+      const pendingShareId = sessionStorage.getItem('pending_guest_share_id')
+      if (pendingShareId) {
+        router.push('/sync-guest')
+      } else {
+        router.push('/chat')
+      }
     } catch (err) {
       setError('Something went wrong. Please try again.')
       setLoading(false)
