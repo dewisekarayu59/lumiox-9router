@@ -394,7 +394,7 @@ export function MessageBubble({ message, onRetry, onEdit, onDelete }: { message:
                           {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                       </div>
-                      <pre className="!bg-[#1A1B26] !rounded-xl overflow-x-auto">{children}</pre>
+                      <pre className="!bg-[#1A1B26] !rounded-xl overflow-x-auto text-slate-200">{children}</pre>
                     </div>
                   ),
                     code: ({ inline, className, children, ...props }: any) => {
@@ -403,7 +403,7 @@ export function MessageBubble({ message, onRetry, onEdit, onDelete }: { message:
                       if (!inline && match && (match[1] === 'html' || match[1] === 'react' || match[1] === 'artifact')) {
                         return <ArtifactRenderer code={codeStr} language={match[1]} />
                       }
-                      return match ? <code className={className} {...props}>{children}</code> :
+                      return match ? <code className={cn(className, 'hljs text-slate-200')} {...props}>{children}</code> :
                         <code className="bg-accent-500/8 dark:bg-accent-500/12 px-1.5 py-0.5 rounded text-accent-600 dark:text-accent-400 text-[0.85em]" {...props}>{children}</code>
                     },
                 }}>
