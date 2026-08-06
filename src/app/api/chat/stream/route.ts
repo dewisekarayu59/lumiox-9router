@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { YoutubeTranscript } from 'youtube-transcript'
 
 const DEFAULT_SYSTEM_PROMPT = 'You are a helpful AI assistant. Be concise and accurate. Use Markdown when helpful.'
 
@@ -203,9 +202,29 @@ async function chatWithProvider(
 
   if (ytUrls.length > 0) {
       try {
-          const transcriptList = await YoutubeTranscript.fetchTranscript(ytUrls[0]);
-          const fullText = transcriptList.map(t => t.text).join(' ');
-          youtubeContext = `\n\nYouTube Video Transcript (from ${ytUrls[0]}):\n${fullText}\n\nPlease refer to this transcript to answer questions or summarize the video content.`;
+          const urlStr = ytUrls[0];
+          let videoId = '';
+          if (urlStr.includes('youtu.be/')) {
+              videoId = urlStr.split('youtu.be/')[1].split(/[?#]/)[0];
+          } else if (urlStr.includes('watch?v=')) {
+              videoId = urlStr.split('watch?v=')[1].split(/[&#]/)[0];
+          }
+
+          if (videoId) {
+              const res = await fetch(`https://youtube-transcript.ai/transcript/${videoId}.txt`);
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              const fullText = await res.text();
+              
+              if (fullText.includes('Not Found') || fullText.trim() === '') {
+                 throw new Error("Transcript not found");
+              }
+              
+              // Limit to ~50k chars to avoid token limits
+              const safeText = fullText.slice(0, 50000);
+              youtubeContext = `\n\nYouTube Video Transcript (from ${urlStr}):\n${safeText}\n\nPlease refer to this transcript to answer questions or summarize the video content.`;
+          } else {
+              throw new Error("Could not extract video ID");
+          }
       } catch (err) {
           console.error("Failed to fetch YT transcript", err);
           youtubeContext = `\n\n[System Note: The user provided a YouTube link but the transcript could not be fetched. The video might not have closed captions/subtitles. Let the user know you cannot access the video content directly.]`;
