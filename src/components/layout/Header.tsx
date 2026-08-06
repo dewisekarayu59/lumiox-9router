@@ -20,6 +20,7 @@ export function Header() {
   const [models, setModels] = useState<AIModel[]>([])
   const [loadingModels, setLoadingModels] = useState(false)
   const [modelError, setModelError] = useState('')
+  const [isSharing, setIsSharing] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
@@ -48,18 +49,25 @@ export function Header() {
   }
 
   const handleShareSession = async () => {
-    if (!session) return
+    if (!session || isSharing) return
+    setIsSharing(true)
+    const { notifySuccess, notifyError } = await import('@/components/notification/Toast')
     try {
       const res = await fetch(`/api/sessions/${session.id}/share`, { method: 'POST', credentials: 'include' })
+      if (!res.ok) throw new Error('Failed to generate link')
       const data = await res.json()
       if (data.shareId) {
         const shareUrl = `${window.location.origin}/share/${data.shareId}`
         await navigator.clipboard.writeText(shareUrl)
-        const { notifySuccess } = await import('@/components/notification/Toast')
-        notifySuccess('Public link copied to clipboard!')
+        notifySuccess((t as any)('publicLinkCopied') || 'Public link copied to clipboard!')
+      } else {
+        throw new Error('No share ID returned')
       }
     } catch (e) {
       console.error('Failed to share session:', e)
+      notifyError((t as any)('publicLinkError') || 'Failed to generate public link. Please try again.')
+    } finally {
+      setIsSharing(false)
     }
   }
 
@@ -238,9 +246,10 @@ export function Header() {
         {session && session.messages.length > 0 && (
           <div className="flex items-center gap-1">
             <button onClick={handleShareSession}
-              className="p-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] rounded-xl transition-colors text-text-secondary hover:text-text-primary"
+              disabled={isSharing}
+              className={`p-2 rounded-xl transition-colors ${isSharing ? 'opacity-50 cursor-not-allowed text-accent' : 'hover:bg-black/[0.04] dark:hover:bg-white/[0.05] text-text-secondary hover:text-text-primary'}`}
               title="Get Public Link">
-              <Share2 className="w-4 h-4" />
+              <Share2 className={`w-4 h-4 ${isSharing ? 'animate-pulse' : ''}`} />
             </button>
             <button onClick={handleExportChat}
               className="p-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] rounded-xl transition-colors text-text-secondary hover:text-text-primary"
