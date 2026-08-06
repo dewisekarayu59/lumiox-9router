@@ -264,7 +264,7 @@ export function MessageBubble({ message, onRetry, onEdit, onDelete }: { message:
       )}
 
       {isUser && (
-        <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-soft border border-white/10 mt-1">
+        <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center flex-shrink-0 shadow-soft border border-white/10 mt-1">
           <User className="w-4.5 h-4.5 text-white" />
         </div>
       )}

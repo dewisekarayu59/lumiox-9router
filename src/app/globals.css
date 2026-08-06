@@ -5,20 +5,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --accent: #6366F1; /* Indigo 500 */
-  --accent-hover: #4F46E5; /* Indigo 600 */
-  --accent-light: #A5B4FC; /* Indigo 300 */
-  --accent-subtle: #EEF2FF; /* Indigo 50 */
-  --bg-primary: #FAFAFA; /* Zinc 50 */
-  --bg-sidebar: #F4F4F5; /* Zinc 100 */
+  --accent: #F24882;
+  --accent-hover: #D62A66;
+  --accent-light: #FF9EC0;
+  --accent-subtle: #FFF0F6;
+  --bg-primary: #FAFAFA;
+  --bg-sidebar: #F4F4F5;
   --bg-surface: #FFFFFF;
-  --border-color: #E4E4E7; /* Zinc 200 */
-  --text-primary: #18181B; /* Zinc 900 */
-  --text-secondary: #71717A; /* Zinc 500 */
+  --border-color: #E4E4E7;
+  --text-primary: #18181B;
+  --text-secondary: #71717A;
   --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-error: #EF4444;
-  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-bg: rgba(255, 255, 255, 0.75);
   --glass-border: rgba(0, 0, 0, 0.05);
   --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.02);
   --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.03);
@@ -27,16 +27,16 @@
 }
 
 .dark {
-  --accent: #818CF8; /* Indigo 400 */
-  --accent-hover: #6366F1; /* Indigo 500 */
-  --accent-light: #4F46E5; /* Indigo 600 */
-  --accent-subtle: rgba(99, 102, 241, 0.12);
-  --bg-primary: #09090B; /* Zinc 950 */
-  --bg-sidebar: #121214; /* Custom dark zinc */
-  --bg-surface: #18181B; /* Zinc 900 */
-  --border-color: #27272A; /* Zinc 800 */
-  --text-primary: #FAFAFA; /* Zinc 50 */
-  --text-secondary: #A1A1AA; /* Zinc 400 */
+  --accent: #FF6B9D;
+  --accent-hover: #F24882;
+  --accent-light: #FF9EC0;
+  --accent-subtle: rgba(242, 72, 130, 0.12);
+  --bg-primary: #09090B;
+  --bg-sidebar: #121214;
+  --bg-surface: #18181B;
+  --border-color: #27272A;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
   --color-success: #34D399;
   --color-warning: #FBBF24;
   --color-error: #F87171;
