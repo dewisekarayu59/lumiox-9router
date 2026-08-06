@@ -7,6 +7,7 @@ import NextTopLoader from 'nextjs-toploader'
 export const metadata: Metadata = {
   title: 'lumiox',
   description: 'Premium multi-provider AI Chat application with a modern, elegant interface.',
+  manifest: '/manifest.json',
   icons: {
     icon: '/logo.png',
     shortcut: '/logo.png',
