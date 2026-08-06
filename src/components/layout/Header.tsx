@@ -54,7 +54,10 @@ export function Header() {
     const { notifySuccess, notifyError } = await import('@/components/notification/Toast')
     try {
       const res = await fetch(`/api/sessions/${session.id}/share`, { method: 'POST', credentials: 'include' })
-      if (!res.ok) throw new Error('Failed to generate link')
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || `HTTP error ${res.status}`)
+      }
       const data = await res.json()
       if (data.shareId) {
         const shareUrl = `${window.location.origin}/share/${data.shareId}`
@@ -86,9 +89,9 @@ export function Header() {
       } else {
         throw new Error('No share ID returned')
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Failed to share session:', e)
-      notifyError((t as any)('publicLinkError') || 'Failed to generate public link. Please try again.')
+      notifyError(`Error: ${e.message}`)
     } finally {
       setIsSharing(false)
     }
