@@ -139,7 +139,7 @@ export function Sidebar() {
   }
 
   const moveToFolder = async (session: DBSession) => {
-    const folderName = prompt(t('enterFolderName') || 'Enter folder name (leave empty for Uncategorized):', session.folder === 'Uncategorized' ? '' : (session.folder || ''))
+    const folderName = prompt(t('enterFolderName' as any) || 'Enter folder name (leave empty for Uncategorized):', session.folder === 'Uncategorized' ? '' : (session.folder || ''))
     if (folderName !== null) {
       const finalFolder = folderName.trim() === '' ? 'Uncategorized' : folderName.trim()
       try {
@@ -231,7 +231,7 @@ export function Sidebar() {
               </button>
               <button onClick={() => moveToFolder(session)}
                 className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors">
-                <FolderPlus className="w-3.5 h-3.5 text-text-secondary" /> {t('moveToFolder') || 'Move to Folder'}
+                <FolderPlus className="w-3.5 h-3.5 text-text-secondary" /> {t('moveToFolder' as any) || 'Move to Folder'}
               </button>
               <button onClick={() => handleShareSession(session)}
                 className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors">
