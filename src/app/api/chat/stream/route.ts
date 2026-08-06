@@ -219,8 +219,8 @@ async function chatWithProvider(
                  throw new Error("Transcript not found");
               }
               
-              // Limit to ~50k chars to avoid token limits
-              const safeText = fullText.slice(0, 50000);
+              // Limit to ~15k chars (~3500 tokens) to avoid Groq TPM limits
+              const safeText = fullText.slice(0, 15000);
               youtubeContext = `\n\nYouTube Video Transcript (from ${urlStr}):\n${safeText}\n\nPlease refer to this transcript to answer questions or summarize the video content.`;
           } else {
               throw new Error("Could not extract video ID");
@@ -406,6 +406,9 @@ export async function POST(request: Request) {
 
     if (error?.type === 'missing_api_key') {
       return NextResponse.json({ type: 'missing_api_key', message: error.message }, { status: 428 })
+    }
+    if (msg.includes('413') || msg.toLowerCase().includes('request too large') || msg.includes('TPM')) {
+      return NextResponse.json({ type: 'too_large', message: 'Transkrip video terlalu panjang dan melebihi limit (TPM) model. Coba gunakan video yang lebih pendek.' }, { status: 413 })
     }
     if (msg.includes('402') || msg.toLowerCase().includes('insufficient')) {
       return NextResponse.json({ type: 'no_credits', message: 'Saldo atau kuota pada provider habis.' }, { status: 402 })
