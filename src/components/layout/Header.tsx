@@ -58,8 +58,31 @@ export function Header() {
       const data = await res.json()
       if (data.shareId) {
         const shareUrl = `${window.location.origin}/share/${data.shareId}`
-        await navigator.clipboard.writeText(shareUrl)
-        notifySuccess((t as any)('publicLinkCopied') || 'Public link copied to clipboard!')
+        
+        // Safe clipboard copy
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(shareUrl)
+          } else {
+            const textArea = document.createElement("textarea")
+            textArea.value = shareUrl
+            textArea.style.position = "fixed"
+            textArea.style.left = "-999999px"
+            textArea.style.top = "-999999px"
+            document.body.appendChild(textArea)
+            textArea.focus()
+            textArea.select()
+            document.execCommand('copy')
+            textArea.remove()
+          }
+          notifySuccess((t as any)('publicLinkCopied') || 'Public link copied to clipboard!')
+        } catch (copyError) {
+          console.error('Clipboard copy failed:', copyError)
+          // Fallback if completely fails
+          prompt('Public Link generated! Copy it below:', shareUrl)
+          notifySuccess('Link generated successfully!')
+        }
+        
       } else {
         throw new Error('No share ID returned')
       }
