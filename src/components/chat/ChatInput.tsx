@@ -30,6 +30,7 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
         const rec = new SpeechRecognition()
         rec.continuous = true
         rec.interimResults = false
+        rec.lang = 'id-ID' // Support Indonesian (and detects English loanwords well in this mode)
         
         rec.onresult = (event: any) => {
           let finalTranscript = ''
