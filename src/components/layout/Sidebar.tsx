@@ -25,7 +25,7 @@ function groupSessions(sessions: DBSession[], t: (key: any) => string) {
     if (f !== 'Uncategorized') groups.push({ label: `📁 ${f}`, items: [] })
   })
 
-  const timeGroups = [
+  const timeGroups: { label: string; items: DBSession[] }[] = [
     { label: t('today'), items: [] },
     { label: t('yesterday'), items: [] },
     { label: t('previous7Days'), items: [] },
