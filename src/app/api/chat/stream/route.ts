@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/db'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const DEFAULT_SYSTEM_PROMPT = 'You are a helpful AI assistant. Be concise and accurate. Use Markdown when helpful.'
 
@@ -357,12 +359,45 @@ async function* makeTransformedStream(rawStream: ReadableStream) {
 
 export async function POST(request: Request) {
   try {
-    const { model, messages, stream, options, provider } = await request.json()
+    const { model, messages, stream, options, provider, sessionId } = await request.json()
+
+    let finalSystemPrompt = options?.systemPrompt || DEFAULT_SYSTEM_PROMPT
+
+    // Check for RAG context
+    if (sessionId && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1].content
+      // Only process string content for RAG queries
+      const queryText = typeof lastMessage === 'string' ? lastMessage : 
+        (Array.isArray(lastMessage) ? lastMessage.map((m: any) => m.text || '').join(' ') : '')
+      
+      if (queryText && process.env.GOOGLE_API_KEY) {
+        try {
+          const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
+          const embedModel = genAI.getGenerativeModel({ model: 'text-embedding-004' })
+          const embedResult = await embedModel.embedContent(queryText)
+          const embedding = embedResult.embedding.values
+          const vectorStr = `[${embedding.join(',')}]`
+
+          const relevantChunks: any[] = await prisma.$queryRaw`
+            SELECT content
+            FROM document_chunks
+            WHERE session_id = ${sessionId}
+            ORDER BY embedding <-> ${vectorStr}::vector
+            LIMIT 5
+          `
+
+          if (relevantChunks.length > 0) {
+            const contextText = relevantChunks.map(c => c.content).join('\n\n')
+            finalSystemPrompt += `\n\n=== RETRIEVED DOCUMENT CONTEXT ===\nYou have access to the following document excerpts uploaded by the user to answer their query. If the answer is not in the context, do not make it up.\n\n${contextText}`
+          }
+        } catch (e) {
+          console.error('RAG Error:', e)
+        }
+      }
+    }
 
     const city = null
     const locationContext = ''
-
-    const finalSystemPrompt = options?.systemPrompt || DEFAULT_SYSTEM_PROMPT
     const truncatedMessages = truncateMessages(messages)
 
     const result = await chatWithProvider(

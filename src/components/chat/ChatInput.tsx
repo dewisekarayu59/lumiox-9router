@@ -259,6 +259,27 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
           } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
             const pdfText = await extractTextFromPDF(file)
             const dataUrl = await readFileAsDataURL(file)
+            
+            // Process via RAG backend
+            if (pdfText.length > 500) {
+              try {
+                await fetch('/api/document/process', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ text: pdfText, sessionId })
+                })
+                processedAttachments.push({
+                  name: file.name,
+                  type: file.type,
+                  content: '[Document processed and embedded in database]',
+                  dataUrl: dataUrl
+                })
+                continue
+              } catch (e) {
+                console.error('Failed to process document for RAG', e)
+              }
+            }
+
             processedAttachments.push({
               name: file.name,
               type: file.type,
@@ -268,6 +289,26 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
           } else {
             const textContent = await readFileAsText(file)
             const dataUrl = await readFileAsDataURL(file)
+            
+            if (textContent.length > 500) {
+              try {
+                await fetch('/api/document/process', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ text: textContent, sessionId })
+                })
+                processedAttachments.push({
+                  name: file.name,
+                  type: file.type,
+                  content: '[Document processed and embedded in database]',
+                  dataUrl: dataUrl
+                })
+                continue
+              } catch (e) {
+                console.error('Failed to process text for RAG', e)
+              }
+            }
+
             processedAttachments.push({
               name: file.name,
               type: file.type,
@@ -349,6 +390,7 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
         body: JSON.stringify({
           model: session.model,
           provider: session.provider,
+          sessionId: session.id,
           messages: allMessages,
           stream: true,
           options: { temperature: settings.temperature, topP: settings.topP, maxTokens: settings.maxTokens, systemPrompt: settings.systemPrompt || undefined },
