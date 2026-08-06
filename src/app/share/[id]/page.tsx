@@ -2,6 +2,8 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import { MessageBubble } from '@/components/chat/MessageBubble'
 import { Bot } from 'lucide-react'
+import { verifyToken } from '@/lib/auth'
+import { cookies } from 'next/headers'
 
 export default async function SharedChatPage({ params }: { params: { id: string } }) {
   const session = await prisma.chatSession.findUnique({
@@ -11,6 +13,20 @@ export default async function SharedChatPage({ params }: { params: { id: string 
 
   if (!session || !session.isPublic) {
     notFound()
+  }
+
+  // Check if current user is the owner
+  const token = cookies().get('auth_token')?.value
+  let isOwner = false
+  if (token) {
+    try {
+      const payload = verifyToken(token)
+      if (payload?.userId === session.userId) {
+        isOwner = true
+      }
+    } catch (e) {
+      // Ignore token verification errors
+    }
   }
 
   return (
@@ -33,9 +49,15 @@ export default async function SharedChatPage({ params }: { params: { id: string 
         </div>
 
         <div className="mt-12 pt-6 border-t border-border text-center">
-          <p className="text-text-secondary text-sm">
-            Want to start your own AI conversation? <a href="/" className="text-accent-500 hover:underline">Try Lumiox for free</a>.
-          </p>
+          {isOwner ? (
+            <p className="text-text-secondary text-sm">
+              This is your shared chat. <a href={`/chat?id=${session.id}`} className="text-accent-500 hover:underline font-medium">Return to chat</a>.
+            </p>
+          ) : (
+            <p className="text-text-secondary text-sm">
+              Want to start your own AI conversation? <a href="/" className="text-accent-500 hover:underline font-medium">Try Lumiox for free</a>.
+            </p>
+          )}
         </div>
       </div>
     </div>
