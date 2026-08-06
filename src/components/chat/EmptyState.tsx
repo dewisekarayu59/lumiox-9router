@@ -101,39 +101,42 @@ export function EmptyState() {
         </p>
 
         {/* Center input */}
-        <form onSubmit={handleSubmit} className="relative mb-8">
+        <form onSubmit={handleSubmit} className="relative mb-10">
           <input
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
             placeholder={t('askAnything')}
             disabled={isCreating}
-            className="w-full bg-surface border border-border rounded-2xl pl-5 pr-14 py-4 text-sm outline-none focus:border-accent-500 transition-all duration-200 shadow-soft placeholder:text-text-secondary/40 disabled:opacity-50"
+            className="w-full bg-surface/80 dark:bg-[#18181b]/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-[2.5rem] pl-6 pr-16 py-4.5 text-[15px] font-medium outline-none focus:border-accent/40 transition-all duration-300 shadow-lg focus:shadow-2xl placeholder:text-text-secondary/40 disabled:opacity-50"
+            style={{ height: '56px' }}
           />
           <button
             type="submit"
             disabled={!input.trim() || isCreating}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-accent-600 text-white rounded-xl hover:bg-accent-700 transition-all disabled:opacity-20 disabled:cursor-not-allowed active:scale-95"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-accent text-white rounded-full hover:bg-accent-hover transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed active:scale-95 shadow-md hover:shadow-lg"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-4 h-4 ml-0.5" />
           </button>
         </form>
 
         {/* Suggestion cards */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           {suggestions.map((s, i) => (
             <motion.button
               key={i}
               onClick={() => handleCreateAndSend(s.text)}
               disabled={isCreating}
-              className="group p-4 bg-surface border border-border rounded-2xl text-left hover:border-accent-300 dark:hover:border-accent-700 hover:shadow-soft transition-all duration-200 disabled:opacity-50"
+              className="group p-5 bg-surface/50 border border-border/50 rounded-3xl text-left hover:bg-surface hover:border-accent/30 hover:shadow-soft transition-all duration-300 disabled:opacity-50 active:scale-[0.98]"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 + i * 0.05 }}
             >
-              <s.icon className="w-5 h-5 text-accent-500 mb-2 group-hover:text-accent-600 transition-colors" />
-              <h3 className="text-sm font-medium text-text-primary">{s.text}</h3>
-              <p className="text-xs text-text-secondary mt-0.5">{s.desc}</p>
+              <div className="p-2.5 w-10 h-10 flex items-center justify-center bg-accent/10 rounded-2xl group-hover:bg-accent group-hover:text-white text-accent transition-colors mb-3">
+                <s.icon className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-semibold text-text-primary group-hover:text-accent transition-colors">{s.text}</h3>
+              <p className="text-xs text-text-secondary mt-1">{s.desc}</p>
             </motion.button>
           ))}
         </div>
