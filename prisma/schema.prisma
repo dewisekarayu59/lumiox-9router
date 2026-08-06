@@ -30,6 +30,7 @@ model ChatSession {
   provider  String
   model     String
   title     String   @default("New Chat")
+  folder    String?  @default("Uncategorized")
   pinned    Boolean  @default(false)
   favorite  Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")

@@ -10,34 +10,50 @@ import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MessageSquarePlus, Search, MoreHorizontal,
-  Trash2, Edit3, Settings, User, Moon, Sun, X, LogOut, Pin, PinOff, Share2, Sparkles
+  Trash2, Edit3, Settings, User, Moon, Sun, X, LogOut, Pin, PinOff, Share2, Sparkles, FolderPlus
 } from 'lucide-react'
 import type { DBSession } from '@/lib/store'
 
-function groupSessionsByTime(sessions: DBSession[], t: (key: any) => string) {
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const yesterday = new Date(today.getTime() - 86400000)
-  const weekAgo = new Date(today.getTime() - 7 * 86400000)
-
+function groupSessions(sessions: DBSession[], t: (key: any) => string) {
+  const folders = Array.from(new Set(sessions.map(s => s.folder).filter(Boolean))) as string[]
+  
   const groups: { label: string; items: DBSession[] }[] = [
     { label: t('pinned'), items: [] },
+  ]
+
+  folders.forEach(f => {
+    if (f !== 'Uncategorized') groups.push({ label: `📁 ${f}`, items: [] })
+  })
+
+  const timeGroups = [
     { label: t('today'), items: [] },
     { label: t('yesterday'), items: [] },
     { label: t('previous7Days'), items: [] },
     { label: t('older'), items: [] },
   ]
 
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const yesterday = new Date(today.getTime() - 86400000)
+  const weekAgo = new Date(today.getTime() - 7 * 86400000)
+
   for (const s of sessions) {
     if (s.pinned) { groups[0].items.push(s); continue }
+    
+    if (s.folder && s.folder !== 'Uncategorized') {
+      const g = groups.find(g => g.label === `📁 ${s.folder}`)
+      if (g) g.items.push(s)
+      continue
+    }
+
     const d = new Date(s.updatedAt)
-    if (d >= today) groups[1].items.push(s)
-    else if (d >= yesterday) groups[2].items.push(s)
-    else if (d >= weekAgo) groups[3].items.push(s)
-    else groups[4].items.push(s)
+    if (d >= today) timeGroups[0].items.push(s)
+    else if (d >= yesterday) timeGroups[1].items.push(s)
+    else if (d >= weekAgo) timeGroups[2].items.push(s)
+    else timeGroups[3].items.push(s)
   }
 
-  return groups.filter(g => g.items.length > 0)
+  return [...groups, ...timeGroups].filter(g => g.items.length > 0)
 }
 
 export function Sidebar() {
@@ -45,7 +61,7 @@ export function Sidebar() {
   const { t } = useTranslation()
   const { sessions, activeSessionId, sidebarOpen, searchQuery, setActiveSession,
     setSidebarOpen, setSearchQuery, deleteSession, renameSession, setSessions,
-    createSession, providerStatus, setProviderStatus } = useChatStore()
+    createSession, providerStatus, setProviderStatus, updateSession } = useChatStore()
   const { defaultProvider, defaultModel, loadSettings } = useSettingsStore()
   const { theme, setTheme } = useUIStore()
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -85,7 +101,7 @@ export function Sidebar() {
     [sortedSessions, searchQuery]
   )
 
-  const groupedSessions = useMemo(() => groupSessionsByTime(filteredSessions, t), [filteredSessions, t])
+  const groupedSessions = useMemo(() => groupSessions(filteredSessions, t), [filteredSessions, t])
 
   const handleNewChat = async () => {
     if (isCreating) return
@@ -117,13 +133,19 @@ export function Sidebar() {
 
   const togglePin = async (session: DBSession) => {
     try {
-      await fetch(`/api/sessions/${session.id}`, {
-        method: 'PUT', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pinned: !session.pinned }),
-      })
-      setSessions(sessions.map(s => s.id === session.id ? { ...s, pinned: !s.pinned } : s))
+      await updateSession(session.id, { pinned: !session.pinned })
     } catch {}
+    setContextMenu(null)
+  }
+
+  const moveToFolder = async (session: DBSession) => {
+    const folderName = prompt(t('enterFolderName') || 'Enter folder name (leave empty for Uncategorized):', session.folder === 'Uncategorized' ? '' : (session.folder || ''))
+    if (folderName !== null) {
+      const finalFolder = folderName.trim() === '' ? 'Uncategorized' : folderName.trim()
+      try {
+        await updateSession(session.id, { folder: finalFolder })
+      } catch {}
+    }
     setContextMenu(null)
   }
 
@@ -206,6 +228,10 @@ export function Sidebar() {
                 className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors">
                 {session.pinned ? <PinOff className="w-3.5 h-3.5 text-text-secondary" /> : <Pin className="w-3.5 h-3.5 text-text-secondary" />}
                 {session.pinned ? t('unpin') : t('pinToTop')}
+              </button>
+              <button onClick={() => moveToFolder(session)}
+                className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors">
+                <FolderPlus className="w-3.5 h-3.5 text-text-secondary" /> {t('moveToFolder') || 'Move to Folder'}
               </button>
               <button onClick={() => handleShareSession(session)}
                 className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors">

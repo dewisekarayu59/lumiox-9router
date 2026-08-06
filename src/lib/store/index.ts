@@ -7,6 +7,7 @@ export interface DBSession {
   provider: string
   model: string
   title: string
+  folder: string | null
   pinned: boolean
   favorite: boolean
   createdAt: string
@@ -44,6 +45,7 @@ interface ChatState {
   createSession: (provider: string, model: string) => Promise<string>
   deleteSession: (id: string) => Promise<void>
   renameSession: (id: string, title: string) => Promise<void>
+  updateSession: (id: string, data: Partial<DBSession>) => Promise<void>
 
   addMessage: (sessionId: string, message: DBMessage) => void
   updateLastAssistant: (sessionId: string, content: string) => void
@@ -111,6 +113,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     await apiPut(`/api/sessions/${id}`, { title })
     set(state => ({
       sessions: state.sessions.map(s => s.id === id ? { ...s, title } : s),
+    }))
+  },
+
+  updateSession: async (id, data) => {
+    await apiPut(`/api/sessions/${id}`, data)
+    set(state => ({
+      sessions: state.sessions.map(s => s.id === id ? { ...s, ...data } : s),
     }))
   },
 
