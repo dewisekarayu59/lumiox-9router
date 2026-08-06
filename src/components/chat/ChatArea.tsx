@@ -6,12 +6,13 @@ import { MessageBubble } from './MessageBubble'
 import { ChatInput } from './ChatInput'
 import { AIThinkingIndicator } from './AIThinkingIndicator'
 import { EmptyState } from './EmptyState'
-import { motion } from 'framer-motion'
-import { MessageSquare, Brain, Zap, Globe, Sparkles, Share2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { MessageSquare, Brain, Zap, Globe, Sparkles, Share2, X, Code2 } from 'lucide-react'
 import { notifySuccess } from '@/components/notification/Toast'
+import { ArtifactRenderer } from './ArtifactRenderer'
 
 export function ChatArea() {
-  const { activeSessionId, sessions } = useChatStore()
+  const { activeSessionId, sessions, activeArtifact, setActiveArtifact } = useChatStore()
   const session = sessions.find(s => s.id === activeSessionId)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -160,9 +161,11 @@ export function ChatArea() {
   ]
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden">
-      <div className="flex-1 overflow-y-auto" ref={scrollRef} onScroll={handleScroll}>
-        {isEmpty ? (
+    <div className="flex-1 flex flex-row h-full overflow-hidden w-full relative">
+      {/* Main Chat Area */}
+      <div className={`flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out ${activeArtifact ? 'w-full md:w-1/2 border-r border-border hidden md:flex' : 'w-full'}`}>
+        <div className="flex-1 overflow-y-auto" ref={scrollRef} onScroll={handleScroll}>
+          {isEmpty ? (
           <div className="flex flex-col items-center justify-center h-full px-4">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -227,8 +230,65 @@ export function ChatArea() {
             <div ref={messagesEndRef} />
           </div>
         )}
+        </div>
+        <ChatInput sessionId={session.id} />
       </div>
-      <ChatInput sessionId={activeSessionId} autoFocus={isEmpty} />
+
+      {/* Split Screen Canvas for Artifact */}
+      <AnimatePresence>
+        {activeArtifact && (
+          <motion.div 
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: '50%', opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="hidden md:flex flex-col h-full bg-surface border-l border-border relative z-10"
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-black/5 dark:bg-white/5">
+              <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
+                <Code2 className="w-4 h-4 text-accent-500" /> Live Canvas
+              </div>
+              <button 
+                onClick={() => setActiveArtifact(null)}
+                className="p-1.5 text-text-secondary hover:text-text-primary hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden p-4">
+              <ArtifactRenderer code={activeArtifact} language="html" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Mobile overlay for artifact */}
+      <AnimatePresence>
+        {activeArtifact && (
+          <motion.div 
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ duration: 0.3, ease: 'spring', damping: 25 }}
+            className="md:hidden fixed inset-0 z-50 bg-surface flex flex-col pt-14"
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-black/5 dark:bg-white/5">
+              <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
+                <Code2 className="w-4 h-4 text-accent-500" /> Live Canvas
+              </div>
+              <button 
+                onClick={() => setActiveArtifact(null)}
+                className="p-1.5 text-text-secondary hover:text-text-primary hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden p-2">
+              <ArtifactRenderer code={activeArtifact} language="html" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

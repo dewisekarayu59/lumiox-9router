@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MessageSquarePlus, Search, MoreHorizontal,
-  Trash2, Edit3, Settings, User, Moon, Sun, X, LogOut, Pin, PinOff, Share2, Sparkles, FolderPlus
+  Trash2, Edit3, Settings, User, Moon, Sun, X, LogOut, Pin, PinOff, Share2, Sparkles, FolderPlus, Bot
 } from 'lucide-react'
 import type { DBSession } from '@/lib/store'
+import { AssistantsModal } from '@/components/chat/AssistantsModal'
 
 function groupSessions(sessions: DBSession[], t: (key: any) => string) {
   const folders = Array.from(new Set(sessions.map(s => s.folder).filter(Boolean))) as string[]
@@ -68,6 +69,7 @@ export function Sidebar() {
   const [editTitle, setEditTitle] = useState('')
   const [contextMenu, setContextMenu] = useState<string | null>(null)
   const [isCreating, setIsCreating] = useState(false)
+  const [assistantsModalOpen, setAssistantsModalOpen] = useState(false)
 
   useEffect(() => {
     loadSettings()
@@ -151,15 +153,13 @@ export function Sidebar() {
 
   const handleShareSession = async (session: DBSession) => {
     try {
-      const res = await fetch(`/api/sessions/${session.id}`, { credentials: 'include' })
+      const res = await fetch(`/api/sessions/${session.id}/share`, { method: 'POST', credentials: 'include' })
       const data = await res.json()
-      if (data.messages) {
-        const text = data.messages
-          .map((m: any) => `**${m.role === 'user' ? 'You' : 'AI'}:** ${m.content}`)
-          .join('\n\n')
-        await navigator.clipboard.writeText(`# ${session.title}\n\n${text}`)
+      if (data.shareId) {
+        const shareUrl = `${window.location.origin}/share/${data.shareId}`
+        await navigator.clipboard.writeText(shareUrl)
         const { notifySuccess } = await import('@/components/notification/Toast')
-        notifySuccess(t('chatCopied'))
+        notifySuccess('Public link copied to clipboard!')
       }
     } catch {}
     setContextMenu(null)
@@ -235,7 +235,7 @@ export function Sidebar() {
               </button>
               <button onClick={() => handleShareSession(session)}
                 className="flex items-center gap-2.5 w-full px-3 py-2 text-[13px] rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors">
-                <Share2 className="w-3.5 h-3.5 text-text-secondary" /> {t('shareCopy')}
+                <Share2 className="w-3.5 h-3.5 text-text-secondary" /> Get Public Link
               </button>
               <div className="my-1 border-t border-border" />
               <button onClick={() => { deleteSession(session.id); setContextMenu(null) }}
@@ -312,7 +312,11 @@ export function Sidebar() {
           </nav>
 
           {/* Bottom Section */}
-          <div className="border-t border-border p-2.5 space-y-0.5 flex-shrink-0">
+          <div className="p-3 border-t border-border mt-auto flex-shrink-0 flex flex-col gap-1 bg-sidebar">
+            <button onClick={() => setAssistantsModalOpen(true)}
+              className="flex items-center gap-2.5 w-full px-3 py-2.5 text-[13px] text-text-secondary hover:bg-black/[0.03] dark:hover:bg-white/[0.04] rounded-xl transition-colors">
+              <Bot className="w-4 h-4" /> Personas
+            </button>
             <button onClick={() => { const next = theme === 'light' ? 'dark' : 'light'; setTheme(next as any) }}
               className="flex items-center gap-2.5 w-full px-3 py-2.5 text-[13px] text-text-secondary hover:bg-black/[0.03] dark:hover:bg-white/[0.04] rounded-xl transition-colors">
               {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
@@ -333,6 +337,7 @@ export function Sidebar() {
           </div>
         </motion.aside>
       )}
+      <AssistantsModal isOpen={assistantsModalOpen} onClose={() => setAssistantsModalOpen(false)} />
     </AnimatePresence>
   )
 }

@@ -10,6 +10,8 @@ export interface DBSession {
   folder: string | null
   pinned: boolean
   favorite: boolean
+  isPublic?: boolean
+  shareId?: string | null
   createdAt: string
   updatedAt: string
   messages: DBMessage[]
@@ -27,9 +29,23 @@ export interface DBMessage {
   createdAt: string
 }
 
+export interface Assistant {
+  id: string
+  userId: string
+  name: string
+  description: string | null
+  systemPrompt: string
+  icon: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 interface ChatState {
   sessions: DBSession[]
   activeSessionId: string | null
+  assistants: Assistant[]
+  selectedAssistantId: string | null
+  activeArtifact: string | null
   sidebarOpen: boolean
   searchQuery: string
   isLoading: boolean
@@ -37,6 +53,9 @@ interface ChatState {
 
   setSessions: (sessions: DBSession[]) => void
   setActiveSession: (id: string | null) => void
+  setAssistants: (assistants: Assistant[]) => void
+  setSelectedAssistantId: (id: string | null) => void
+  setActiveArtifact: (artifact: string | null) => void
   setSidebarOpen: (open: boolean) => void
   setSearchQuery: (query: string) => void
   setIsLoading: (loading: boolean) => void
@@ -83,13 +102,19 @@ async function apiDelete(url: string) {
 export const useChatStore = create<ChatState>((set, get) => ({
   sessions: [],
   activeSessionId: null,
+  assistants: [],
+  selectedAssistantId: null,
+  activeArtifact: null,
   sidebarOpen: true,
   searchQuery: '',
   isLoading: false,
   providerStatus: {},
 
   setSessions: (sessions) => set({ sessions }),
-  setActiveSession: (id) => set({ activeSessionId: id }),
+  setActiveSession: (id) => set({ activeSessionId: id, activeArtifact: null }), // Clear artifact when changing session
+  setAssistants: (assistants) => set({ assistants }),
+  setSelectedAssistantId: (id) => set({ selectedAssistantId: id }),
+  setActiveArtifact: (artifact) => set({ activeArtifact: artifact }),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   setSearchQuery: (query) => set({ searchQuery: query }),
   setIsLoading: (loading) => set({ isLoading: loading }),

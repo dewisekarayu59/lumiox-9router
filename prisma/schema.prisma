@@ -21,6 +21,7 @@ model User {
 
   sessions   ChatSession[]
   settings   UserSetting?
+  assistants Assistant[]
 
   @@map("users")
 }
@@ -34,6 +35,8 @@ model ChatSession {
   folder    String?  @default("Uncategorized")
   pinned    Boolean  @default(false)
   favorite  Boolean  @default(false)
+  isPublic  Boolean  @default(false) @map("is_public")
+  shareId   String?  @unique @map("share_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -92,4 +95,20 @@ model UserSetting {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_settings")
+}
+
+model Assistant {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  name         String
+  description  String?
+  systemPrompt String   @map("system_prompt")
+  icon         String?  @default("Bot")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("assistants")
 }

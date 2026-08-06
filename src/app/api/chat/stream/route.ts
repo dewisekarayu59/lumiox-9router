@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { search, SafeSearchType } from 'duck-duck-scrape'
 
 const DEFAULT_SYSTEM_PROMPT = 'You are a helpful AI assistant. Be concise and accurate. Use Markdown when helpful.'
 
@@ -14,6 +15,7 @@ interface ChatOptions {
   topP?: number
   maxTokens?: number
   systemPrompt?: string
+  webSearch?: boolean
 }
 
 function truncateMessages(messages: ChatMessage[], max: number = 30): ChatMessage[] {
@@ -370,7 +372,22 @@ export async function POST(request: Request) {
       const queryText = typeof lastMessage === 'string' ? lastMessage : 
         (Array.isArray(lastMessage) ? lastMessage.map((m: any) => m.text || '').join(' ') : '')
       
-      if (queryText && process.env.GOOGLE_API_KEY) {
+      // Perform Web Search if enabled
+      if (options?.webSearch && queryText) {
+        try {
+          const searchResults = await search(queryText, { safeSearch: SafeSearchType.MODERATE })
+          if (searchResults.results && searchResults.results.length > 0) {
+            const topResults = searchResults.results.slice(0, 5)
+            const searchContext = topResults.map(r => `[Title: ${r.title}] (${r.url})\nDescription: ${r.description}`).join('\n\n')
+            finalSystemPrompt += `\n\n=== WEB SEARCH RESULTS ===\nThe user has enabled Web Search. You have just searched the internet for their query and found the following real-time information:\n\n${searchContext}\n\nUse this information to answer the user's question accurately. Cite the source URLs if helpful.`
+          }
+        } catch (e) {
+          console.error('Web Search Error:', e)
+        }
+      }
+
+      // Check for RAG context
+      if (queryText && process.env.GOOGLE_API_KEY && !options?.webSearch) {
         try {
           const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
           const embedModel = genAI.getGenerativeModel({ model: 'text-embedding-004' })

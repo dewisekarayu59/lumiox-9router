@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useChatStore, useSettingsStore } from '@/lib/store'
 import { useTranslation } from '@/lib/store/language'
 import { cn } from '@/lib/utils'
-import { Send, Paperclip, Square, Image, FileText, X, Mic } from 'lucide-react'
+import { Send, Paperclip, Square, Image, FileText, X, Mic, Globe } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import { notifyError } from '@/components/notification/Toast'
 
@@ -12,11 +12,12 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
   const [input, setInput] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [attachments, setAttachments] = useState<File[]>([])
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const abortRef = useRef<AbortController | null>(null)
   const handleSendRef = useRef<() => void>(() => {})
   const retryTextRef = useRef<string>('')
-  const { addMessage, updateLastAssistant, sessions } = useChatStore()
+  const { addMessage, updateLastAssistant, sessions, assistants, selectedAssistantId } = useChatStore()
   const settings = useSettingsStore()
   const { t } = useTranslation()
   const [isListening, setIsListening] = useState(false)
@@ -382,7 +383,9 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
     // Stream response
     try {
       abortRef.current = new AbortController()
-      
+      const { selectedAssistantId, assistants } = useChatStore.getState()
+      const activeAssistant = assistants.find(a => a.id === selectedAssistantId)
+        
       const response = await fetch('/api/chat/stream', {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -393,7 +396,13 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
           sessionId: session.id,
           messages: allMessages,
           stream: true,
-          options: { temperature: settings.temperature, topP: settings.topP, maxTokens: settings.maxTokens, systemPrompt: settings.systemPrompt || undefined },
+          options: { 
+            temperature: settings.temperature, 
+            topP: settings.topP, 
+            maxTokens: settings.maxTokens, 
+            systemPrompt: activeAssistant ? activeAssistant.systemPrompt : (settings.systemPrompt || undefined),
+            webSearch: webSearchEnabled
+          },
         }),
       })
 
@@ -509,6 +518,11 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
                     isListening ? "bg-red-500/10 text-red-500 hover:text-red-600 animate-pulse" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.05] text-text-secondary hover:text-text-primary"
                   )} title={isListening ? "Listening..." : "Voice Input"}>
                   <Mic className="w-4 h-4" />
+                </button>
+                <button type="button" onClick={() => setWebSearchEnabled(!webSearchEnabled)} 
+                  className={cn("p-2 rounded-xl transition-colors", webSearchEnabled ? "bg-accent-600/10 text-accent-600" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.05] text-text-secondary hover:text-text-primary")} 
+                  title={webSearchEnabled ? "Web Search Active" : "Enable Web Search"}>
+                  <Globe className="w-4 h-4" />
                 </button>
                 <label className="p-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] rounded-xl transition-colors cursor-pointer text-text-secondary hover:text-text-primary">
                   <Paperclip className="w-4 h-4" />

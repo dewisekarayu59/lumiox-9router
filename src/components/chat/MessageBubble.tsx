@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm'
 import { Copy, Check, Bot, User, AlertTriangle, RefreshCw, Shield, CreditCard, Key, WifiOff, Edit3, X, Trash2, ExternalLink, Download, Volume2, VolumeX } from 'lucide-react'
 import type { DBMessage } from '@/lib/store'
 import { formatDistanceToNow } from 'date-fns'
+import { ArtifactRenderer } from './ArtifactRenderer'
 
 const rehypeHighlight = typeof window !== 'undefined'
   ? require('rehype-highlight').default
@@ -396,11 +397,15 @@ export function MessageBubble({ message, onRetry, onEdit, onDelete }: { message:
                       <pre className="!bg-[#1A1B26] !rounded-xl overflow-x-auto">{children}</pre>
                     </div>
                   ),
-                  code: ({ className, children, ...props }) => {
-                    const match = /language-(\w+)/.exec(className || '')
-                    return match ? <code className={className} {...props}>{children}</code> :
-                      <code className="bg-accent-500/8 dark:bg-accent-500/12 px-1.5 py-0.5 rounded text-accent-600 dark:text-accent-400 text-[0.85em]" {...props}>{children}</code>
-                  },
+                    code: ({ inline, className, children, ...props }: any) => {
+                      const match = /language-(\w+)/.exec(className || '')
+                      const codeStr = String(children).replace(/\n$/, '')
+                      if (!inline && match && (match[1] === 'html' || match[1] === 'react' || match[1] === 'artifact')) {
+                        return <ArtifactRenderer code={codeStr} language={match[1]} />
+                      }
+                      return match ? <code className={className} {...props}>{children}</code> :
+                        <code className="bg-accent-500/8 dark:bg-accent-500/12 px-1.5 py-0.5 rounded text-accent-600 dark:text-accent-400 text-[0.85em]" {...props}>{children}</code>
+                    },
                 }}>
                 {message.content}
               </ReactMarkdown>
