@@ -484,12 +484,13 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
   }
 
   return (
-    <div className="border-t border-border bg-surface/60 backdrop-blur-lg px-4 pt-3 pb-4">
+    <div className="bg-transparent px-4 pb-6 pt-2">
+      <div className="max-w-3xl mx-auto w-full">
       {attachments.length > 0 && (
         <div className="flex gap-2 mb-3 flex-wrap">
           {attachments.map((a, i) => (
-            <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-accent-500/10 border border-accent-500/15 rounded-xl text-sm">
-              {a.type.startsWith('image/') ? <Image className="w-4 h-4 text-accent-500" /> : <FileText className="w-4 h-4 text-accent-500" />}
+            <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 border border-accent/20 rounded-2xl text-sm">
+              {a.type.startsWith('image/') ? <Image className="w-4 h-4 text-accent" /> : <FileText className="w-4 h-4 text-accent" />}
               <span className="truncate max-w-[120px] text-text-secondary">{a.name}</span>
               <button onClick={() => setAttachments(prev => prev.filter((_, j) => j !== i))} className="text-text-secondary hover:text-error transition-colors">
                 <X className="w-3.5 h-3.5" />
@@ -500,49 +501,50 @@ export function ChatInput({ sessionId, autoFocus }: { sessionId: string; autoFoc
       )}
       <div {...getRootProps()} className={`relative ${isDragActive ? 'opacity-50' : ''}`}>
         <input {...getInputProps()} />
-        <div className="relative flex items-end gap-2 bg-background border border-border rounded-2xl focus-within:border-accent-500/50 focus-within:shadow-soft transition-all duration-150 px-4 py-2">
+        <div className="relative flex items-end gap-2 bg-surface/80 dark:bg-[#18181b]/80 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-[2rem] shadow-lg focus-within:shadow-2xl focus-within:border-accent/40 transition-all duration-300 px-4 py-2.5">
           <textarea ref={textareaRef} data-chat-input value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
             placeholder={t('typeMessagePlaceholder')} rows={1}
-            className="flex-1 resize-none bg-transparent text-base text-text-primary outline-none py-1.5 placeholder:text-text-secondary/40"
-            style={{ minHeight: '28px', maxHeight: '200px' }} />
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+            className="flex-1 resize-none bg-transparent text-[15px] text-text-primary outline-none py-2 placeholder:text-text-secondary/50 font-medium"
+            style={{ minHeight: '36px', maxHeight: '200px' }} />
+          <div className="flex items-center gap-1.5 flex-shrink-0 pb-0.5">
             {isGenerating ? (
               <button onClick={() => abortRef.current?.abort()}
-                className="p-2 bg-error/10 text-error rounded-xl hover:bg-error/20 transition-colors">
+                className="p-3 bg-error/10 text-error rounded-full hover:bg-error/20 transition-colors">
                 <Square className="w-4 h-4" />
               </button>
             ) : (
               <>
                 <button type="button" onClick={toggleListening}
-                  className={cn("p-2 rounded-xl transition-colors",
+                  className={cn("p-2.5 rounded-full transition-colors",
                     isListening ? "bg-red-500/10 text-red-500 hover:text-red-600 animate-pulse" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.05] text-text-secondary hover:text-text-primary"
                   )} title={isListening ? "Listening..." : "Voice Input"}>
                   <Mic className="w-4 h-4" />
                 </button>
                 <button type="button" onClick={() => setWebSearchEnabled(!webSearchEnabled)} 
-                  className={cn("p-2 rounded-xl transition-colors", webSearchEnabled ? "bg-accent-600/10 text-accent-600" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.05] text-text-secondary hover:text-text-primary")} 
+                  className={cn("p-2.5 rounded-full transition-colors", webSearchEnabled ? "bg-accent/15 text-accent" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.05] text-text-secondary hover:text-text-primary")} 
                   title={webSearchEnabled ? "Web Search Active" : "Enable Web Search"}>
                   <Globe className="w-4 h-4" />
                 </button>
-                <label className="p-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] rounded-xl transition-colors cursor-pointer text-text-secondary hover:text-text-primary">
+                <label className="p-2.5 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] rounded-full transition-colors cursor-pointer text-text-secondary hover:text-text-primary">
                   <Paperclip className="w-4 h-4" />
                   <input type="file" className="hidden" multiple onChange={e => {
                     if (e.target.files) setAttachments(prev => [...prev, ...Array.from(e.target.files!)])
                   }} />
                 </label>
                 <button onClick={() => handleSend()} disabled={!input.trim() && attachments.length === 0}
-                  className="p-2 bg-accent-600 text-white rounded-xl hover:bg-accent-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 shadow-soft">
-                  <Send className="w-4 h-4" />
+                  className="p-3 bg-accent text-white rounded-full hover:bg-accent-hover transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed active:scale-90 shadow-md hover:shadow-lg">
+                  <Send className="w-4 h-4 ml-0.5" />
                 </button>
               </>
             )}
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-center mt-2">
-        <span className="text-[10px] text-text-secondary/30">
+      <div className="flex items-center justify-center mt-3">
+        <span className="text-[11px] font-medium text-text-secondary/40 tracking-wide">
           {sessions.find(s => s.id === sessionId)?.provider} · {sessions.find(s => s.id === sessionId)?.model?.split('/').pop()?.replace(/-/g, ' ')}
         </span>
+      </div>
       </div>
     </div>
   )

@@ -257,9 +257,9 @@ export function Sidebar() {
           animate={{ width: 288, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
           transition={{ duration: 0.2, ease: 'easeInOut' }}
-          className="fixed md:relative left-0 top-0 h-full bg-sidebar border-r border-border z-40 flex flex-col overflow-hidden">
+          className="fixed md:relative left-0 top-0 h-full bg-sidebar/70 backdrop-blur-3xl md:border-r border-border/40 z-40 flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 h-14 border-b border-border flex-shrink-0">
+          <div className="flex items-center justify-between px-4 h-16 border-b border-white/5 flex-shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl flex items-center justify-center">
                 <img src="/logo.png" alt="lumiox logo" className="w-full h-full object-contain" />
@@ -274,19 +274,18 @@ export function Sidebar() {
           </div>
 
           {/* New Chat Button */}
-          <div className="p-3 pb-2">
+          <div className="p-4 pb-2">
             <button onClick={handleNewChat} disabled={isCreating}
-              className={cn('group relative w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl font-medium text-sm transition-all duration-150 active:scale-[0.98] shadow-soft hover:shadow-md overflow-hidden',
+              className={cn('group relative w-full flex items-center justify-center gap-2 px-4 py-3 bg-accent-600 hover:bg-accent-500 text-white rounded-2xl font-semibold text-sm transition-all duration-300 active:scale-[0.97] shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)] overflow-hidden',
                 isCreating ? 'opacity-60 cursor-not-allowed' : '')}>
-              <span className="relative z-10 flex items-center gap-2">
-                <MessageSquarePlus className="w-4 h-4" /> {t('newChat')}
-              </span>
-              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform" />
+              <div className="absolute inset-0 bg-white/20 translate-y-[-100%] group-hover:translate-y-[100%] transition-transform duration-700 ease-in-out" />
+              <MessageSquarePlus className="w-4 h-4" />
+              <span>{isCreating ? t('creating' as any) : t('newChat')}</span>
             </button>
           </div>
 
           {/* Search */}
-          <div className="px-3 pb-2">
+          <div className="px-4 py-2">
             <div className="relative group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-secondary/60 group-focus-within:text-accent-500 transition-colors" />
               <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={t('searchChats')}

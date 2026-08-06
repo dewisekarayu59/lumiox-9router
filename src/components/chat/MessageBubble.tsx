@@ -256,23 +256,23 @@ export function MessageBubble({ message, onRetry, onEdit, onDelete }: { message:
   }
 
   return (
-    <div className={cn('group flex gap-3 animate-fade-in items-start', isUser ? 'flex-row-reverse' : '')}>
+    <div className={cn('group flex gap-4 animate-fade-in items-start', isUser ? 'flex-row-reverse' : '')}>
       {isAssistant && (
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center flex-shrink-0 shadow-soft">
-          <Bot className="w-4 h-4 text-white" />
+        <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center flex-shrink-0 shadow-soft border border-white/10 mt-1">
+          <Bot className="w-4.5 h-4.5 text-white" />
         </div>
       )}
 
       {isUser && (
-        <div className="w-8 h-8 rounded-xl bg-accent-600 flex items-center justify-center flex-shrink-0 shadow-soft">
-          <User className="w-4 h-4 text-white" />
+        <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-soft border border-white/10 mt-1">
+          <User className="w-4.5 h-4.5 text-white" />
         </div>
       )}
 
-      <div className={cn('relative max-w-[min(75%,720px)] rounded-2xl px-4 py-2.5 transition-all duration-150',
+      <div className={cn('relative max-w-[min(85%,760px)] rounded-3xl px-5 py-3.5 transition-all duration-200',
         isUser
-          ? 'bg-accent-600 text-white rounded-tr-sm'
-          : 'bg-surface border border-border rounded-tl-sm')}>
+          ? 'bg-gradient-to-br from-accent to-accent-hover text-white rounded-tr-sm shadow-md border border-accent/20'
+          : 'bg-surface/40 dark:bg-surface/40 backdrop-blur-md border border-black/5 dark:border-white/5 rounded-tl-sm shadow-sm')}>
 
         {/* Provider label */}
         {isAssistant && message.provider && (
