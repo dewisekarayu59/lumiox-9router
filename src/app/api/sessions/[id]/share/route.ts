@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { cookies } from 'next/headers'
-import * as jose from 'jose'
+import { verifyToken } from '@/lib/auth'
+
+function getUser(request: Request) {
+  const token = request.headers.get('cookie')?.match(/auth_token=([^;]+)/)?.[1]
+  if (!token) return null
+  const payload = verifyToken(token)
+  return payload?.userId || null
+}
 
 function generateShareId() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -14,12 +20,8 @@ function generateShareId() {
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
-    const token = cookies().get('token')?.value
-    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret-key-123')
-    const { payload } = await jose.jwtVerify(token, secret)
-    const userId = payload.sub as string
+    const userId = getUser(request)
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const session = await prisma.chatSession.findUnique({
       where: { id: params.id }
